@@ -2,8 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Windows Live Messenger</title>
-    <!-- On charge XP.css pour le look authentique -->
+    <title>MSN Messenger</title>
     <link rel="stylesheet" href="https://unpkg.com/xp.css">
     <style>
         /* --- STYLES GÉNÉRAUX --- */
@@ -14,21 +13,23 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            font-family: "Tahoma", "Segoe UI", sans-serif;
+            font-family: "Tahoma", sans-serif;
             font-size: 11px;
             overflow: hidden;
         }
 
-        /* --- LA FENÊTRE PRINCIPALE (FENÊTRE WLM 2009) --- */
+        /* --- FENÊTRE PRINCIPALE (LISTE DE CONTACTS) --- */
         .msn-window {
             width: 320px;
-            height: 500px;
+            height: 550px;
             background-color: #eef3fc;
             display: flex;
             flex-direction: column;
+            border: 1px solid #003399;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
         }
 
-        /* Barre de titre XP */
+        /* Barre de titre */
         .title-bar {
             background: linear-gradient(to bottom, #f5f9ff, #d6e5f7);
             padding: 3px 5px;
@@ -40,15 +41,12 @@
             color: #003399;
             font-size: 11px;
         }
-        .title-bar-controls {
-            display: flex;
-            gap: 2px;
-        }
+        .title-bar-controls { display: flex; gap: 2px; }
         .title-bar-controls button {
             width: 16px; height: 14px; border: 1px solid #7a9cd6; background: #eef3fc; font-size: 9px; cursor: pointer;
         }
 
-        /* Barre de menus (Fichier, Contacts, etc.) */
+        /* Menu Bar */
         .menu-bar {
             background-color: #eef3fc;
             border-bottom: 1px solid #d4dbe8;
@@ -57,15 +55,10 @@
             font-size: 11px;
             color: #000;
         }
-        .menu-item {
-            padding: 2px 8px;
-            cursor: pointer;
-        }
-        .menu-item:hover {
-            background-color: #d6e5f7;
-        }
+        .menu-item { padding: 2px 8px; cursor: pointer; }
+        .menu-item:hover { background-color: #d6e5f7; }
 
-        /* En-tête utilisateur (Le fameux bandeau bleu clair) */
+        /* En-tête (Profil) avec la vraie image du bonhomme MSN */
         .msn-header {
             background: linear-gradient(to bottom, #eef6ff, #dce9f9);
             padding: 10px;
@@ -79,146 +72,82 @@
             border: 1px solid #7a9cd6;
             background-color: #fff;
             display: flex; justify-content: center; align-items: center;
-            font-size: 24px;
+            overflow: hidden;
         }
-        .user-info {
-            display: flex; flex-direction: column; gap: 2px;
-        }
-        .user-name {
-            font-weight: bold; color: #003399; font-size: 12px;
-        }
-        .user-status {
-            color: #333; font-size: 11px;
-        }
+        .user-pic img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .user-info { display: flex; flex-direction: column; gap: 2px; }
+        .user-name { font-weight: bold; color: #003399; font-size: 12px; }
+        .user-status { color: #333; font-size: 11px; }
 
         /* Barre de recherche */
-        .search-bar {
-            padding: 5px;
-            background: #f5f9ff;
-            border-bottom: 1px solid #d4dbe8;
-        }
+        .search-bar { padding: 5px; background: #f5f9ff; border-bottom: 1px solid #d4dbe8; }
         .search-bar input {
-            width: 100%;
-            border: 1px solid #7f9db9;
-            padding: 3px;
-            font-size: 11px;
-            font-family: "Tahoma", sans-serif;
+            width: 100%; border: 1px solid #7f9db9; padding: 3px; font-size: 11px; font-family: "Tahoma", sans-serif;
         }
 
-        /* Liste de contacts */
-        .contact-list {
-            flex: 1;
-            background: #fff;
-            overflow-y: auto;
-            padding: 5px;
-        }
+        /* Liste des contacts */
+        .contact-list { flex: 1; background: #fff; overflow-y: auto; padding: 5px; }
         .contact-group {
-            font-weight: bold;
-            color: #555;
-            margin-bottom: 5px;
-            padding-left: 5px;
-            background-color: #eef3fc;
-            border-bottom: 1px solid #d4dbe8;
-            font-size: 11px;
+            font-weight: bold; color: #555; margin-bottom: 5px; padding-left: 5px;
+            background-color: #eef3fc; border-bottom: 1px solid #d4dbe8; font-size: 11px;
         }
         .contact-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 4px;
-            cursor: pointer;
-            border: 1px solid transparent;
-            font-size: 11px;
+            display: flex; align-items: center; gap: 8px; padding: 4px; cursor: pointer;
+            border: 1px solid transparent; font-size: 11px;
         }
-        .contact-item:hover {
-            background-color: #d6e5f7;
-            border: 1px solid #a0b9d9;
-        }
-        .status-icon {
-            width: 16px; height: 16px; border-radius: 50%; display: inline-block;
-        }
-        .status-online { background-color: #67c446; }
-        .status-away { background-color: #f4a12b; }
-        .status-offline { background-color: #a0a0a0; }
+        .contact-item:hover { background-color: #d6e5f7; border: 1px solid #a0b9d9; }
+        
+        /* Icônes de statut (Vrai look MSN) */
+        .status-icon { width: 16px; height: 16px; display: inline-block; }
+        .status-online { background: url('https://upload.wikimedia.org/wikipedia/commons/8/8e/Msn_online.png') no-repeat center center; background-size: contain; }
+        .status-away { background: url('https://upload.wikimedia.org/wikipedia/commons/2/2c/Msn_away.png') no-repeat center center; background-size: contain; }
+        .status-offline { background: url('https://upload.wikimedia.org/wikipedia/commons/6/6e/Msn_offline.png') no-repeat center center; background-size: contain; }
 
         /* Barre de statut en bas */
         .status-bar {
-            background: #eef3fc;
-            border-top: 1px solid #a0b9d9;
-            padding: 2px 5px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 10px;
-            color: #333;
+            background: #eef3fc; border-top: 1px solid #a0b9d9; padding: 2px 5px;
+            display: flex; justify-content: space-between; font-size: 10px; color: #333;
         }
 
-        /* --- LA FENÊTRE DE CONVERSATION (LE CHAT) --- */
+        /* --- FENÊTRE DE CONVERSATION (LE CHAT) --- */
         .chat-window {
             display: none;
             width: 450px;
-            height: 420px;
+            height: 450px;
             position: absolute;
             top: 10%;
             left: 50%;
             background-color: #eef3fc;
             border: 1px solid #003399;
             flex-direction: column;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
         }
-
         .chat-menu-bar {
-            background-color: #eef3fc;
-            border-bottom: 1px solid #d4dbe8;
-            display: flex;
-            padding: 2px 5px;
-            font-size: 11px;
+            background-color: #eef3fc; border-bottom: 1px solid #d4dbe8;
+            display: flex; padding: 2px 5px; font-size: 11px;
         }
-
-        /* Zone des messages */
         .chat-messages {
-            flex: 1;
-            background: #fff;
-            overflow-y: auto;
-            padding: 8px;
-            border: 1px solid #7f9db9;
-            margin: 5px;
-            font-size: 12px;
-            font-family: "Tahoma", sans-serif;
+            flex: 1; background: #fff; overflow-y: auto; padding: 8px;
+            border: 1px solid #7f9db9; margin: 5px; font-size: 12px; font-family: "Tahoma", sans-serif;
         }
         .message { margin-bottom: 5px; }
         .message strong { color: #003399; }
         .message .time { color: #888; font-size: 10px; margin-right: 5px; }
 
-        /* Zone de saisie */
         .chat-input-area {
-            padding: 5px;
-            background: #f5f9ff;
-            border-top: 1px solid #a0b9d9;
-            display: flex;
-            gap: 5px;
+            padding: 5px; background: #f5f9ff; border-top: 1px solid #a0b9d9;
+            display: flex; gap: 5px;
         }
         .chat-input-area input {
-            flex: 1;
-            border: 1px solid #7f9db9;
-            padding: 4px;
-            font-family: "Tahoma", sans-serif;
+            flex: 1; border: 1px solid #7f9db9; padding: 4px; font-family: "Tahoma", sans-serif;
         }
-
-        /* Boutons du chat */
         .chat-actions {
-            display: flex;
-            gap: 5px;
-            padding: 5px;
-            justify-content: space-between;
-            align-items: center;
-            background: #eef3fc;
+            display: flex; gap: 5px; padding: 5px; justify-content: space-between;
+            align-items: center; background: #eef3fc;
         }
         .btn-wizz {
-            background: #ffcc00;
-            border: 1px solid #cc9900;
-            font-weight: bold;
-            cursor: pointer;
-            padding: 2px 8px;
-            font-size: 11px;
+            background: #ffcc00; border: 1px solid #cc9900; font-weight: bold; cursor: pointer; padding: 2px 8px; font-size: 11px;
         }
         .btn-wizz:active { background: #e6b800; }
 
@@ -236,24 +165,17 @@
             90% { transform: translate(1px, 2px) rotate(0deg); }
             100% { transform: translate(1px, -2px) rotate(-1deg); }
         }
-        .shake-animation {
-            animation: shake 0.5s; animation-iteration-count: 1;
-        }
+        .shake-animation { animation: shake 0.5s; animation-iteration-count: 1; }
 
         /* Palette de couleurs */
-        .color-picker {
-            display: flex; gap: 3px; align-items: center;
-        }
-        .color-dot {
-            width: 12px; height: 12px; border-radius: 50%; cursor: pointer; border: 1px solid #555;
-        }
+        .color-picker { display: flex; gap: 3px; align-items: center; }
+        .color-dot { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; border: 1px solid #555; }
     </style>
 </head>
 <body>
 
     <!-- 1. FENÊTRE PRINCIPALE (MSN) -->
     <div class="window msn-window" id="main-window">
-        <!-- Barre de titre Windows XP -->
         <div class="title-bar">
             <span>Windows Live Messenger</span>
             <div class="title-bar-controls">
@@ -263,7 +185,6 @@
             </div>
         </div>
         
-        <!-- Barre de menus (Fichier, Contacts, etc.) -->
         <div class="menu-bar">
             <div class="menu-item">Fichier</div>
             <div class="menu-item">Contacts</div>
@@ -272,21 +193,19 @@
             <div class="menu-item">Aide</div>
         </div>
 
-        <!-- En-tête (Profil) -->
         <div class="msn-header">
-            <div class="user-pic">😺</div>
+            <!-- Image du bonhomme MSN authentique -->
+            <div class="user-pic"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Windows_Live_Messenger_2009_icon.png/120px-Windows_Live_Messenger_2009_icon.png" alt="Avatar"></div>
             <div class="user-info">
                 <span class="user-name">Fanta (En ligne) ▾</span>
                 <span class="user-status">Tapez votre message perso...</span>
             </div>
         </div>
 
-        <!-- Barre de recherche -->
         <div class="search-bar">
             <input type="text" placeholder="Rechercher un contact...">
         </div>
 
-        <!-- Liste des contacts -->
         <div class="contact-list">
             <div class="contact-group">Amis (2/18)</div>
             
@@ -304,7 +223,6 @@
             </div>
         </div>
 
-        <!-- Barre de statut -->
         <div class="status-bar">
             <span>Prêt</span>
             <span>🔊 Connecté</span>
@@ -322,7 +240,6 @@
             </div>
         </div>
 
-        <!-- Barre de menus du chat -->
         <div class="chat-menu-bar">
             <div class="menu-item">Fichier</div>
             <div class="menu-item">Edition</div>
@@ -332,18 +249,15 @@
         </div>
         
         <div class="window-body" style="padding: 0; margin: 0; flex: 1; display: flex; flex-direction: column;">
-            <!-- Zone des messages -->
             <div class="chat-messages" id="messages">
                 <div class="message"><span class="time">[14:02]</span> <strong>Berserk68 :</strong> Salut ! Ça fait longtemps !</div>
             </div>
             
-            <!-- Zone de saisie -->
             <div class="chat-input-area">
                 <input type="text" id="chat-input" placeholder="Tapez votre message..." autocomplete="off">
                 <button onclick="sendMessage()">Envoyer</button>
             </div>
 
-            <!-- Boutons Wizz et Couleurs -->
             <div class="chat-actions">
                 <div class="color-picker">
                     <span style="font-size:10px; color:#555;">Couleur :</span>
@@ -363,21 +277,18 @@
         const socket = io();
         let currentUser = "Moi";
 
-        // Ouvrir le chat
         function openChat() {
             document.getElementById('chat-window').style.display = 'flex';
-            // Jouer le son de connexion
+            // Son de connexion
             const audio = new Audio('assets/msn_sound.mp3');
             audio.volume = 0.5;
             audio.play().catch(e => console.log("Son de connexion non trouvé."));
         }
 
-        // Fermer le chat
         function closeChat() {
             document.getElementById('chat-window').style.display = 'none';
         }
 
-        // Envoyer un message
         function sendMessage() {
             const input = document.getElementById('chat-input');
             const message = input.value.trim();
@@ -387,12 +298,10 @@
             }
         }
 
-        // Raccourci Entrée
         document.getElementById('chat-input').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') sendMessage();
         });
 
-        // Recevoir un message
         socket.on('chat message', function(msg) {
             const messagesDiv = document.getElementById('messages');
             const newMessage = document.createElement('div');
@@ -403,29 +312,25 @@
             messagesDiv.appendChild(newMessage);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
             
-            // Jouer le son de nouveau message
+            // Son de message
             const audio = new Audio('assets/message.mp3');
             audio.volume = 0.3;
             audio.play().catch(e => {});
         });
 
-        // --- LE WIZZ (NUDGE) ---
+        // --- WIZZ ---
         function sendWizz() {
-            // 1. Jouer le son du Wizz
             const audio = new Audio('assets/nudge.mp3'); 
             audio.volume = 1.0;
             audio.play().catch(e => console.log("nudge.mp3 non trouvé."));
 
-            // 2. Faire trembler la fenêtre
             const chatWin = document.getElementById('chat-window');
             chatWin.classList.add('shake-animation');
             setTimeout(() => chatWin.classList.remove('shake-animation'), 500);
 
-            // 3. Envoyer l'événement
             socket.emit('wizz', { user: currentUser });
         }
 
-        // Recevoir un Wizz
         socket.on('wizz', function(data) {
             const chatWin = document.getElementById('chat-window');
             chatWin.classList.add('shake-animation');
@@ -441,7 +346,6 @@
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         });
 
-        // Changer la couleur de la fenêtre de chat
         function changeChatColor(color) {
             document.getElementById('chat-window').style.backgroundColor = color;
         }
