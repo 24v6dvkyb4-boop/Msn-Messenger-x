@@ -11,8 +11,8 @@
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            gap: 20px;
-            padding-top: 40px;
+            gap: 15px;
+            padding-top: 30px;
             height: 100vh;
             overflow: hidden;
         }
@@ -22,7 +22,7 @@
            ========================================= */
         .msn-main-window {
             width: 280px;
-            height: 520px;
+            height: 540px;
             background-color: #eef3fc;
             border: 1px solid #003399;
             display: flex;
@@ -65,17 +65,16 @@
         .status-offline { background-color: #a0a0a0; }
 
         .ad-banner { height: 60px; background: linear-gradient(135deg, #003399, #0055cc); color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; text-align: center; padding: 5px; border-top: 1px solid #a0b9d9; cursor: pointer; }
-        .ad-banner:hover { opacity: 0.9; }
 
         .status-bar { background: #eef3fc; border-top: 1px solid #a0b9d9; padding: 2px 5px; font-size: 10px; color: #555; display: flex; justify-content: space-between; }
 
         /* =========================================
-           2. FENÊTRE DE CHAT (Celle que tu voulais)
+           2. FENÊTRE DE CHAT (Celle de l'autre photo)
            ========================================= */
         .chat-window {
             display: none; /* Caché au début */
             width: 600px;
-            height: 520px;
+            height: 540px;
             background-color: #eef3fc;
             border: 1px solid #003399;
             flex-direction: column;
@@ -97,7 +96,7 @@
 
         .chat-body { display: flex; flex: 1; overflow: hidden; }
 
-        /* Barre latérale du chat (Avatar) */
+        /* Avatar du contact à gauche */
         .chat-sidebar { width: 160px; background-color: #eef3fc; border-right: 1px solid #a0b9d9; display: flex; flex-direction: column; }
         .chat-avatar-container { padding: 10px; background: #fff; border-bottom: 1px solid #a0b9d9; text-align: center; }
         .chat-main-avatar { width: 120px; height: 120px; background: #ccc; border: 1px solid #7a9cd6; margin-bottom: 5px; object-fit: cover; }
@@ -114,7 +113,7 @@
         .color-red { color: #cc0000; }
         .color-green { color: #009900; }
 
-        /* Zone de saisie */
+        /* Saisie */
         .chat-input-area { border-top: 1px solid #a0b9d9; background: #eef3fc; padding: 5px; }
         .chat-format-bar { display: flex; gap: 8px; padding-bottom: 5px; border-bottom: 1px solid #d4dbe8; }
         .chat-format-bar span { cursor: pointer; font-size: 14px; }
@@ -144,9 +143,7 @@
 </head>
 <body>
 
-    <!-- =========================================
-         FENÊTRE 1 : LISTE DE CONTACTS
-         ========================================= -->
+    <!-- 1. LISTE DE CONTACTS -->
     <div class="msn-main-window">
         <div class="title-bar">
             <span>Windows Live Messenger</span>
@@ -175,8 +172,6 @@
 
         <div class="contact-list-container">
             <div class="group-header">Online (15) <span>[2/2]</span></div>
-            
-            <!-- Clique sur un de ces contacts pour ouvrir le chat -->
             <div class="contact-row" onclick="openChat('Flo ❀ Alice ❀', 'https://i.pravatar.cc/150?img=47')">
                 <span class="status-icon status-online"></span> Flo ❀ Alice ❀
             </div>
@@ -190,7 +185,6 @@
             <div class="group-header">Offline (25) <span>[12/12]</span></div>
             <div class="contact-row"><span class="status-icon status-offline"></span> Zlatan</div>
             <div class="contact-row"><span class="status-icon status-offline"></span> Lars</div>
-            <div class="contact-row"><span class="status-icon status-offline"></span> Krüger</div>
         </div>
 
         <div class="ad-banner" onclick="alert('Publicité MSN !')">
@@ -203,9 +197,7 @@
         </div>
     </div>
 
-    <!-- =========================================
-         FENÊTRE 2 : CHAT (Cachée au début)
-         ========================================= -->
+    <!-- 2. FENÊTRE DE CHAT -->
     <div class="chat-window" id="chat-window">
         <div class="chat-title-bar">
             <span id="chat-title-text">💬 Conversation</span>
@@ -231,7 +223,6 @@
         </div>
 
         <div class="chat-body">
-            <!-- Avatar du contact -->
             <div class="chat-sidebar">
                 <div class="chat-avatar-container">
                     <img src="" id="chat-avatar-img" class="chat-main-avatar" alt="Avatar">
@@ -239,13 +230,8 @@
                 </div>
             </div>
 
-            <!-- Zone des messages -->
             <div class="chat-main">
-                <div class="chat-messages-box" id="chat-messages">
-                    <!-- Les messages s'afficheront ici -->
-                </div>
-
-                <!-- Saisie -->
+                <div class="chat-messages-box" id="chat-messages"></div>
                 <div class="chat-input-area">
                     <div class="chat-format-bar">
                         <span title="Gras">A</span>
@@ -267,37 +253,25 @@
         </div>
     </div>
 
-    <!-- =========================================
-         LOGIQUE JAVASCRIPT
-         ========================================= -->
+    <!-- LOGIQUE -->
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
         let currentUser = "Moi";
-        let currentContact = "";
 
-        // Ouvre la fenêtre de chat
         function openChat(contactName, avatarUrl) {
-            currentContact = contactName;
-            
-            // Met à jour les infos
             document.getElementById('chat-title-text').textContent = `💬 ${contactName} - Conversation`;
             document.getElementById('chat-contact-name').textContent = contactName;
             document.getElementById('chat-avatar-img').src = avatarUrl;
-            
-            // Affiche la fenêtre
             document.getElementById('chat-window').style.display = 'flex';
-            document.getElementById('chat-messages').innerHTML = ''; // Vide les anciens messages
+            document.getElementById('chat-messages').innerHTML = '';
             
-            // Son d'ouverture
             const audio = new Audio('assets/msn_sound.mp3');
             audio.volume = 0.5;
-            audio.play().catch(e => console.log("Son non trouvé."));
+            audio.play().catch(e => {});
         }
 
-        function closeChat() {
-            document.getElementById('chat-window').style.display = 'none';
-        }
+        function closeChat() { document.getElementById('chat-window').style.display = 'none'; }
 
         function sendMessage() {
             const input = document.getElementById('chat-input');
@@ -310,16 +284,12 @@
         }
 
         document.getElementById('chat-input').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
         });
 
         socket.on('chat message', function(msg) {
             if (msg.user === currentUser) return;
             addMessageToScreen(msg.user, msg.text);
-            
             const audio = new Audio('assets/message.mp3');
             audio.volume = 0.3;
             audio.play().catch(e => {});
@@ -329,36 +299,25 @@
             const messagesDiv = document.getElementById('chat-messages');
             const msgDiv = document.createElement('div');
             msgDiv.classList.add('msg-line');
-            
-            // Couleur aléatoire (comme MSN)
             const colors = ['color-blue', 'color-red', 'color-pink', 'color-green'];
             const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            
             msgDiv.innerHTML = `<span class="msg-name ${randomColor}">${sender} :</span> ${text}`;
             messagesDiv.appendChild(msgDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
-        // --- WIZZ ---
         function sendWizz() {
             const audio = new Audio('assets/nudge.mp3'); 
-            audio.volume = 1.0;
-            audio.play().catch(e => console.log("nudge.mp3 non trouvé."));
-
+            audio.play().catch(e => {});
             const chatWin = document.getElementById('chat-window');
             chatWin.classList.add('shake-animation');
             setTimeout(() => chatWin.classList.remove('shake-animation'), 500);
-
             const messagesDiv = document.getElementById('chat-messages');
             const wizzLine = document.createElement('div');
-            wizzLine.style.color = 'red';
-            wizzLine.style.fontWeight = 'bold';
-            wizzLine.style.textAlign = 'center';
-            wizzLine.style.margin = '10px 0';
+            wizzLine.style = "color:red; font-weight:bold; text-align:center; margin:10px 0;";
             wizzLine.textContent = `— Vous venez d'envoyer un Wizz ! —`;
             messagesDiv.appendChild(wizzLine);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
-
             socket.emit('wizz', { user: currentUser });
         }
 
@@ -366,16 +325,11 @@
             const chatWin = document.getElementById('chat-window');
             chatWin.classList.add('shake-animation');
             setTimeout(() => chatWin.classList.remove('shake-animation'), 500);
-            
             const audio = new Audio('assets/nudge.mp3');
             audio.play().catch(e => {});
-            
             const messagesDiv = document.getElementById('chat-messages');
             const wizzLine = document.createElement('div');
-            wizzLine.style.color = 'red';
-            wizzLine.style.fontWeight = 'bold';
-            wizzLine.style.textAlign = 'center';
-            wizzLine.style.margin = '10px 0';
+            wizzLine.style = "color:red; font-weight:bold; text-align:center; margin:10px 0;";
             wizzLine.textContent = `— ${data.user} vous a envoyé un Wizz ! —`;
             messagesDiv.appendChild(wizzLine);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
