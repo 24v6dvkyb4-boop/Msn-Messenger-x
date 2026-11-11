@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>MSN Messenger - Nostalgie</title>
+    <!-- On charge la bibliothèque XP.css pour le look Windows -->
+    <link rel="stylesheet" href="https://unpkg.com/xp.css">
+    <style>
+        /* --- STYLES DE BASE --- */
+        body {
+            background-color: #5a7edc; /* Fond bleu typique du bureau XP */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: "Tahoma", sans-serif; 
+            font-size: 11px;
+        }
+
+        /* --- FENÊTRE PRINCIPALE (Liste de contacts) --- */
+        .msn-window { width: 280px; background-color: #eef3fc; }
+        .msn-header {
+            background: linear-gradient(to bottom, #f5f9ff, #d6e5f7);
+            padding: 5px; display: flex; align-items: center; border-bottom: 1px solid #a0b9d9; gap: 5px;
+        }
+        .user-pic { width: 48px; height: 48px; border: 1px solid #7a9cd6; background-color: #fff; display: flex; justify-content: center; align-items: center; font-size: 24px; }
+        .user-name { font-weight: bold; color: #003399; font-size: 12px; }
+        .search-bar { padding: 5px; background: #fff; border-bottom: 1px solid #d4dbe8; display: flex; gap: 5px; }
+        .search-bar input { width: 100%; border: 1px solid #7f9db9; padding: 2px 4px; font-size: 11px; font-family: "Tahoma", sans-serif; }
+        .contact-list { height: 180px; overflow-y: auto; background: #fff; padding: 5px; }
+        .contact-group { font-weight: bold; color: #555; margin-bottom: 5px; padding-left: 5px; background-color: #eef3fc; border-bottom: 1px solid #d4dbe8; }
+        .contact-item { display: flex; align-items: center; gap: 8px; padding: 4px; cursor: pointer; border: 1px solid transparent; }
+        .contact-item:hover { background-color: #d6e5f7; border: 1px solid #a0b9d9; }
+        .status-icon { width: 16px; height: 16px; border-radius: 50%; display: inline-block; }
+        .status-online { background-color: #67c446; }
+
+        /* --- FENÊTRE DE CHAT (Le Tchat) --- */
+        .chat-window {
+            display: none; 
+            width: 450px;
+            height: 420px;
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            /* La couleur de fond sera modifiée par JS */
+            background-color: #eef3fc; 
+            border: 1px solid #003399;
+        }
+        
+        /* La zone des messages */
+        .chat-messages {
+            height: 220px;
+            background: #fff;
+            overflow-y: auto;
+            padding: 8px;
+            border: 1px solid #7f9db9;
+            margin: 5px;
+            font-size: 12px;
+            font-family: "Tahoma", sans-serif;
+        }
+        .message { margin-bottom: 5px; }
+        .message strong { color: #003399; }
+        .message .time { color: #888; font-size: 10px; margin-right: 5px; }
+        
+        /* La zone de saisie */
+        .chat-input-area {
+            padding: 5px;
+            background: #f5f9ff;
+            border-top: 1px solid #a0b9d9;
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        .chat-input-area input {
+            flex: 1;
+            border: 1px solid #7f9db9;
+            padding: 4px;
+            font-family: "Tahoma", sans-serif;
+        }
+        
+        /* Barre d'émoticônes */
+        .emoticon-bar {
+            display: flex; gap: 2px; padding: 2px 5px; background: #fff; border: 1px solid #7f9db9;
+            border-top: none; flex-wrap: wrap;
+        }
+        .emoticon-btn {
+            background: none; border: none; cursor: pointer; font-size: 16px;
+        }
+        .emoticon-btn:hover { background: #d6e5f7; }
+
+        /* Boutons d'action (Wizz et couleurs) */
+        .chat-actions {
+            display: flex; gap: 5px; padding: 5px; justify-content: flex-end; background: #eef3fc;
+        }
+        .btn-wizz {
+            background: #ffcc00; border: 1px solid #cc9900; font-weight: bold; cursor: pointer; padding: 2px 8px;
+        }
+        .btn-wizz:active { background: #e6b800; }
+
+        /* Animation Shake pour le Wizz */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .shake-animation {
+            animation: shake 0.5s; animation-iteration-count: 1;
+        }
+
+        /* Palette de couleurs */
+        .color-picker {
+            display: flex; gap: 3px; margin-left: auto; align-items: center;
+        }
+        .color-dot {
+            width: 12px; height: 12px; border-radius: 50%; cursor: pointer; border: 1px solid #555;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. FENÊTRE PRINCIPALE (LISTE DE CONTACTS) -->
+    <div class="window msn-window" id="main-window">
+        <div class="title-bar">
+            <div class="title-bar-text">Windows Live Messenger</div>
+            <div class="title-bar-controls">
+                <button aria-label="Minimize"></button>
+                <button aria-label="Close" onclick="alert('Fermeture impossible pour le moment 😅')"></button>
+            </div>
+        </div>
+        <div class="window-body" style="padding: 0; margin: 0;">
+            <div class="msn-header">
+                <div class="user-pic">😺</div>
+                <div class="user-info">
+                    <span class="user-name">Fanta (En ligne) ▾</span>
+                    <span class="user-status">Tapez votre message perso...</span>
+                </div>
+            </div>
+            <div class="contact-list">
+                <div class="contact-group">Amis (1/18)</div>
+                <div class="contact-item" onclick="openChat()">
+                    <span class="status-icon status-online"></span>
+                    <span class="contact-name">Berserk68</span>
+                </div>
+            </div>
+            <div class="status-bar">
+                <p class="status-bar-field">Prêt</p>
+                <p class="status-bar-field">🔊 Connecté</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. FENÊTRE DE CONVERSATION (LE TCHAT) -->
+    <div class="window chat-window" id="chat-window">
+        <div class="title-bar">
+            <div class="title-bar-text">Berserk68 - Conversation</div>
+            <div class="title-bar-controls">
+                <button aria-label="Minimize"></button>
+                <button aria-label="Maximize"></button>
+                <button aria-label="Close" onclick="closeChat()"></button>
+            </div>
+        </div>
+        
+        <div class="window-body" style="padding: 0; margin: 0;">
+            <!-- Zone des messages -->
+            <div class="chat-messages" id="messages">
+                <div class="message"><span class="time">[14:02]</span> <strong>Berserk68 :</strong> Salut ! Ça fait longtemps !</div>
+            </div>
+            
+            <!-- Barre d'émoticônes -->
+            <div class="emoticon-bar">
+                <button class="emoticon-btn" onclick="addEmoticon('😊')">😊</button>
+                <button class="emoticon-btn" onclick="addEmoticon('😂')">😂</button>
+                <button class="emoticon-btn" onclick="addEmoticon('😍')">😍</button>
+                <button class="emoticon-btn" onclick="addEmoticon('😎')">😎</button>
+                <button class="emoticon-btn" onclick="addEmoticon('😢')">😢</button>
+                <button class="emoticon-btn" onclick="addEmoticon('❤️')">❤️</button>
+                <button class="emoticon-btn" onclick="addEmoticon('👍')">👍</button>
+            </div>
+
+            <!-- Zone de saisie -->
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Tapez votre message..." autocomplete="off">
+                <button onclick="sendMessage()">Envoyer</button>
+            </div>
+
+            <!-- Boutons Wizz et Couleurs -->
+            <div class="chat-actions">
+                <div class="color-picker">
+                    <span style="font-size:10px; color:#555;">Couleur :</span>
+                    <div class="color-dot" style="background:#eef3fc;" onclick="changeChatColor('#eef3fc')"></div>
+                    <div class="color-dot" style="background:#ffcccc;" onclick="changeChatColor('#ffcccc')"></div>
+                    <div class="color-dot" style="background:#ccffcc;" onclick="changeChatColor('#ccffcc')"></div>
+                    <div class="color-dot" style="background:#ccccff;" onclick="changeChatColor('#ccccff')"></div>
+                </div>
+                <button class="btn-wizz" onclick="sendWizz()">⚡ Wizz</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. SCRIPT SOCKET.IO + LOGIQUE MSN -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let currentUser = "Moi";
+
+        // --- LOGIQUE DE BASE ---
+        function openChat() {
+            document.getElementById('chat-window').style.display = 'block';
+            // Jouer le son de connexion MSN
+            const audio = new Audio('assets/msn_sound.mp3');
+            audio.volume = 0.5;
+            audio.play().catch(e => console.log("Son de connexion non trouvé ou bloqué."));
+        }
+        function closeChat() {
+            document.getElementById('chat-window').style.display = 'none';
+        }
+
+        // --- ENVOI DE MESSAGE ---
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (message !== "") {
+                socket.emit('chat message', { user: currentUser, text: message });
+                input.value = '';
+            }
+        }
+
+        document.getElementById('chat-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        socket.on('chat message', function(msg) {
+            const messagesDiv = document.getElementById('messages');
+            const newMessage = document.createElement('div');
+            newMessage.classList.add('message');
+            const now = new Date();
+            const time = `[${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}]`;
+            newMessage.innerHTML = `<span class="time">${time}</span> <strong>${msg.user} :</strong> ${msg.text}`;
+            messagesDiv.appendChild(newMessage);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            // Jouer le son de notification
+            const audio = new Audio('assets/message.mp3');
+            audio.volume = 0.3;
+            audio.play().catch(e => {});
+        });
+
+        // --- LOGIQUE DU WIZZ (NUDGE) ---
+        function sendWizz() {
+            // 1. Jouer le son du Wizz (doit être dans assets/nudge.mp3)
+            const audio = new Audio('assets/nudge.mp3'); 
+            audio.volume = 1.0;
+            audio.play().catch(e => console.log("Fichier nudge.mp3 non trouvé dans le dossier assets."));
+
+            // 2. Faire trembler la fenêtre
+            const chatWin = document.getElementById('chat-window');
+            chatWin.classList.add('shake-animation');
+            setTimeout(() => chatWin.classList.remove('shake-animation'), 500);
+
+            // 3. Envoyer l'événement aux autres
+            socket.emit('wizz', { user: currentUser });
+        }
+
+        // Recevoir un Wizz
+        socket.on('wizz', function(data) {
+            const chatWin = document.getElementById('chat-window');
+            chatWin.classList.add('shake-animation');
+            setTimeout(() => chatWin.classList.remove('shake-animation'), 500);
+            
+            const audio = new Audio('assets/nudge.mp3');
+            audio.play().catch(e => {});
+            
+            const messagesDiv = document.getElementById('messages');
+            const newMessage = document.createElement('div');
+            newMessage.innerHTML = `<em style="color:red;">⚡ ${data.user} vous a envoyé un Wizz !</em>`;
+            messagesDiv.appendChild(newMessage);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+
+        // --- CHANGEMENT DE COULEUR ---
+        function changeChatColor(color) {
+            document.getElementById('chat-window').style.backgroundColor = color;
+        }
+
+        // --- ÉMOTICÔNES ---
+        function addEmoticon(emoticon) {
+            const input = document.getElementById('chat-input');
+            input.value += emoticon;
+            input.focus();
+        }
+    </script>
+
+</body>
+</html>
