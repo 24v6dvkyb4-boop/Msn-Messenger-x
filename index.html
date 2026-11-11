@@ -2,118 +2,94 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MSN Messenger - Complet</title>
-    <!-- On garde XP.css pour les boutons systèmes -->
-    <link rel="stylesheet" href="https://unpkg.com/xp.css">
+    <title>Windows Live Messenger</title>
     <style>
-        /* --- STYLES GLOBAUX --- */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tahoma', 'Segoe UI', sans-serif; }
+        /* --- RESET & BASE --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body {
-            background-color: #3b6ea5; /* Fond XP */
+            background-color: #e0eef9;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Aligné en haut */
+            align-items: flex-start;
             gap: 20px;
+            padding-top: 40px;
             height: 100vh;
-            padding-top: 50px;
             overflow: hidden;
         }
 
-        /* --- FENÊTRE PRINCIPALE (LISTE DE CONTACTS) --- */
-        .main-window {
-            width: 280px;
-            background: #eef5fc;
-            border: 1px solid #0054e3;
-            border-radius: 4px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            display: flex;
-            flex-direction: column;
+        /* --- 1. FENÊTRE DE CONTACTS --- */
+        .wlm-window {
+            width: 320px;
+            border: 1px solid #5c9ccc;
+            border-radius: 8px;
+            background: linear-gradient(180deg, #b8e1fc 0%, #ffffff 25%, #ffffff 100%);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
         }
+        .wlm-header { padding: 15px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #d4e8f7; }
+        .avatar { width: 54px; height: 54px; border-radius: 6px; border: 2px solid #5cb85c; background-color: #d9edf7; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .user-info h3 { margin: 0; font-size: 15px; color: #1e395b; }
+        .user-info p { margin: 3px 0 0; font-size: 12px; color: #555; font-style: italic; }
         
-        .main-header {
-            background: linear-gradient(180deg, #0058e6 0%, #2782ff 10%, #0054e3 100%);
-            color: white; padding: 5px 10px; font-weight: bold; font-size: 12px;
-            display: flex; justify-content: space-between;
-        }
+        .search-bar { padding: 8px 12px; background: #f4f9fd; border-bottom: 1px solid #e1effa; }
+        .search-bar input { width: 100%; padding: 5px 8px; border: 1px solid #b5d5ed; border-radius: 3px; font-size: 12px; }
 
-        .user-profile {
-            display: flex; gap: 10px; padding: 10px; background: #dce9f9; border-bottom: 1px solid #b5cce8;
-        }
-        .user-avatar { width: 48px; height: 48px; background: #fff; border: 1px solid #7f9db9; display: flex; justify-content: center; align-items: center; font-size: 24px; }
-        .user-info { display: flex; flex-direction: column; justify-content: center; }
-        .user-name { font-weight: bold; color: #0b3b75; font-size: 12px; }
-        .user-status { font-size: 11px; color: #555; }
+        .contact-list { padding: 10px 15px; list-style: none; margin: 0; min-height: 250px; }
+        .group-title { font-size: 12px; font-weight: bold; color: #1e395b; margin-bottom: 8px; }
+        .contact { display: flex; align-items: center; gap: 8px; padding: 5px; font-size: 13px; color: #333; border-radius: 4px; cursor: pointer; }
+        .contact:hover { background-color: #e5f3ff; }
+        .status-dot { width: 10px; height: 10px; border-radius: 2px; background-color: #5cb85c; }
+        .status-busy { background-color: #d9534f; }
 
-        .contact-list { background: white; height: 400px; overflow-y: auto; padding: 5px; }
-        .contact-group { font-weight: bold; color: #555; font-size: 11px; padding: 3px; background: #f1f6fc; border-bottom: 1px solid #d4dbe8; }
-        .contact-item { display: flex; align-items: center; gap: 8px; padding: 5px; cursor: pointer; border-radius: 2px; }
-        .contact-item:hover { background: #e1eefc; }
-        
-        .status-icon { width: 16px; height: 16px; border-radius: 50%; }
-        .status-online { background-color: #67c446; }
-        .status-away { background-color: #f4a12b; }
-
-        /* --- FENÊTRE DE CONVERSATION (TON CODE) --- */
+        /* --- 2. FENÊTRE DE CHAT --- */
         .chat-window {
             display: none; /* Caché au début */
-            width: 580px;
-            height: 480px;
-            background: linear-gradient(180deg, #d7e7f9 0%, #eef5fc 100%);
-            border: 2px solid #0054e3;
-            border-radius: 8px 8px 4px 4px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            width: 550px;
+            height: 500px;
+            background: #ffffff;
+            border: 1px solid #5c9ccc;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
             flex-direction: column;
             overflow: hidden;
         }
-
+        
         .title-bar {
             background: linear-gradient(180deg, #0058e6 0%, #2782ff 10%, #0054e3 100%);
-            color: white; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; font-weight: bold;
+            color: white; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 13px;
+            border-radius: 8px 8px 0 0;
         }
         .window-controls button {
             width: 21px; height: 21px; border: 1px solid #fff; border-radius: 3px; color: white; font-weight: bold; cursor: pointer; margin-left: 2px;
         }
-        .btn-min, .btn-max { background: linear-gradient(180deg, #3c8eff 0%, #145ec9 100%); }
         .btn-close { background: linear-gradient(180deg, #f3765c 0%, #d2280f 100%); }
 
-        .menu-bar { background-color: #f1f6fc; border-bottom: 1px solid #b5cce8; padding: 3px 10px; font-size: 11px; color: #333; }
-        .menu-bar span { margin-right: 12px; cursor: pointer; }
-
-        .action-bar {
-            background: linear-gradient(180deg, #e1eefc 0%, #c6defa 100%); border-bottom: 1px solid #9cbce2; padding: 6px 12px; display: flex; gap: 15px; font-size: 11px; color: #1d467c;
-        }
-        .action-btn { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-        .action-btn span:first-child { font-size: 16px; }
-
-        .contact-header { padding: 8px 12px; background: #eef5fc; border-bottom: 1px solid #c3d7ef; font-size: 12px; }
-        .contact-name { font-weight: bold; color: #0b3b75; }
-        .contact-status { color: #555; font-size: 11px; font-style: italic; }
-
-        .chat-body { flex: 1; display: flex; padding: 10px; gap: 10px; }
-        .chat-left { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+        .chat-body { flex: 1; display: flex; flex-direction: column; background: #eef5fc; }
         
-        .messages-box { flex: 1; background: white; border: 1px solid #7f9db9; border-radius: 3px; padding: 10px; overflow-y: auto; font-size: 13px; }
-        .msg-sender { color: #666; font-size: 12px; margin-bottom: 2px; }
-        .msg-text { color: #000; margin-bottom: 10px; padding-left: 10px; }
-        .nudge-alert { color: #d2280f; font-weight: bold; margin: 8px 0; font-size: 12px; }
-
-        .input-container { height: 95px; background: white; border: 1px solid #7f9db9; border-radius: 3px; display: flex; flex-direction: column; }
-        .format-bar { background: #eef5fc; border-bottom: 1px solid #c3d7ef; padding: 3px 8px; display: flex; gap: 10px; font-size: 12px; color: #1d467c; cursor: pointer; }
-        .input-area { flex: 1; display: flex; padding: 5px; }
-        textarea { flex: 1; border: none; resize: none; outline: none; font-size: 13px; font-family: 'Tahoma', sans-serif; }
+        /* Zone des messages */
+        .messages-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
         
-        .btn-send {
-            width: 65px; background: linear-gradient(180deg, #ffffff 0%, #dce8f7 100%); border: 1px solid #7f9db9; border-radius: 3px; color: #0b3b75; font-weight: bold; cursor: pointer; margin-left: 5px;
-        }
-        .btn-send:hover { background: linear-gradient(180deg, #fff6d9 0%, #ffe38f 100%); border-color: #e5a324; }
+        /* Bulles de messages */
+        .msg-container { display: flex; flex-direction: column; max-width: 80%; }
+        .msg-container.mine { align-self: flex-end; align-items: flex-end; }
+        .msg-container.other { align-self: flex-start; align-items: flex-start; }
+        
+        .msg-header { font-size: 11px; color: #777; margin-bottom: 3px; }
+        .msg-bubble { padding: 10px 15px; border-radius: 15px; font-size: 14px; line-height: 1.4; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .msg-container.mine .msg-bubble { background: #0078d7; color: white; border-bottom-right-radius: 2px; }
+        .msg-container.other .msg-bubble { background: #ffffff; color: #333; border-bottom-left-radius: 2px; border: 1px solid #dcdcdc; }
 
-        .chat-right { width: 110px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
-        .avatar-frame { width: 96px; height: 96px; background: white; border: 1px solid #7f9db9; border-radius: 4px; padding: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; }
-        .avatar-img { width: 100%; height: 100%; background: linear-gradient(135deg, #74b9ff, #0984e3); display: flex; justify-content: center; align-items: center; color: white; font-size: 36px; border-radius: 2px; }
-        .avatar-user { background: linear-gradient(135deg, #55efc4, #00b894); }
+        .nudge-alert { color: #d2280f; font-weight: bold; margin: 5px 0; font-size: 12px; text-align: center; background: #fff0f0; padding: 5px; border-radius: 5px; }
 
-        .status-footer { background: #dce9f9; border-top: 1px solid #b5cce8; padding: 4px 10px; font-size: 11px; color: #444; }
+        /* Zone de saisie */
+        .input-container { height: 100px; background: white; border-top: 1px solid #d4e8f7; display: flex; flex-direction: column; }
+        .format-bar { background: #f4f9fd; padding: 5px 10px; display: flex; gap: 15px; font-size: 14px; color: #1d467c; cursor: pointer; border-bottom: 1px solid #e1effa; }
+        .format-bar span:hover { background-color: #dce8f7; border-radius: 3px; }
+        .input-area { flex: 1; display: flex; padding: 10px; gap: 10px; }
+        textarea { flex: 1; border: 1px solid #b5d5ed; border-radius: 5px; padding: 10px; resize: none; outline: none; font-size: 13px; font-family: 'Tahoma', sans-serif; }
+        
+        .btn-send { width: 80px; background: #0078d7; border: none; border-radius: 5px; color: white; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .btn-send:hover { background: #005a9e; }
 
         /* Animation Wizz */
         @keyframes shake {
@@ -134,36 +110,35 @@
 </head>
 <body>
 
-    <!-- 1. FENÊTRE PRINCIPALE -->
-    <div class="main-window">
-        <div class="main-header">
-            <span>Windows Live Messenger</span>
-            <span>_ □ X</span>
-        </div>
-        <div class="user-profile">
-            <div class="user-avatar">😺</div>
+    <!-- 1. FENÊTRE PRINCIPALE (Contacts) -->
+    <div class="wlm-window">
+        <div class="wlm-header">
+            <div class="avatar">😺</div>
             <div class="user-info">
-                <span class="user-name">Fanta (En ligne) ▾</span>
-                <span class="user-status">Tapez votre message perso...</span>
+                <h3>Fanta (En ligne)</h3>
+                <p>🎵 Écoute : Ma playlist MSN 2009</p>
             </div>
         </div>
-        <div class="contact-list">
-            <div class="contact-group">Amis (2/18)</div>
-            <div class="contact-item" onclick="openChat()">
-                <span class="status-icon status-online"></span>
-                <span>Alex</span>
-            </div>
-            <div class="contact-item">
-                <span class="status-icon status-away"></span>
-                <span>Jérôme</span>
-            </div>
+        <div class="search-bar">
+            <input type="text" placeholder="Rechercher un contact...">
         </div>
+        <ul class="contact-list">
+            <div class="group-title">▼ En ligne (2)</div>
+            <li class="contact" onclick="openChat('Alex')">
+                <span class="status-dot"></span>
+                <span>Alex - Salut !</span>
+            </li>
+            <li class="contact">
+                <span class="status-dot status-busy"></span>
+                <span>Jérôme (Occupé)</span>
+            </li>
+        </ul>
     </div>
 
-    <!-- 2. FENÊTRE DE CONVERSATION (Ton code intégré) -->
+    <!-- 2. FENÊTRE DE CONVERSATION (Chat) -->
     <div class="chat-window" id="chat-window">
         <div class="title-bar">
-            <span>💬 Alex - Conversation</span>
+            <span id="chat-title">💬 Conversation</span>
             <div class="window-controls">
                 <button class="btn-min">_</button>
                 <button class="btn-max">□</button>
@@ -171,89 +146,59 @@
             </div>
         </div>
 
-        <div class="menu-bar">
-            <span>Fichier</span><span>Édition</span><span>Actions</span><span>Outils</span><span>Aide</span>
-        </div>
-
-        <div class="action-bar">
-            <div class="action-btn"><span>👤+</span><span>Inviter</span></div>
-            <div class="action-btn"><span>📁</span><span>Envoyer</span></div>
-            <div class="action-btn"><span>📹</span><span>Vidéo</span></div>
-            <div class="action-btn"><span>📞</span><span>Voix</span></div>
-            <div class="action-btn"><span>🎮</span><span>Jeux</span></div>
-        </div>
-
-        <div class="contact-header">
-            <div class="contact-name">Alex (En ligne)</div>
-            <div class="contact-status">🎵 Écoute : Linkin Park - Numb</div>
-        </div>
-
         <div class="chat-body">
-            <div class="chat-left">
-                <div class="messages-box" id="messages">
-                    <!-- Les messages apparaîtront ici -->
-                </div>
-
-                <div class="input-container">
-                    <div class="format-bar">
-                        <span><b>A</b></span>
-                        <span>😊</span>
-                        <span onclick="sendWizz()" style="cursor:pointer;">💥 <i>Wizz</i></span>
-                        <span>🎨</span>
-                    </div>
-                    <div class="input-area">
-                        <textarea id="chat-input" placeholder="Écrivez votre message ici..."></textarea>
-                        <button class="btn-send" onclick="sendMessage()">Envoyer</button>
-                    </div>
-                </div>
+            <div class="messages-box" id="messages">
+                <!-- Les messages apparaîtront ici -->
             </div>
 
-            <div class="chat-right">
-                <div class="avatar-frame">
-                    <div class="avatar-img">🧑‍💻</div>
+            <div class="input-container">
+                <div class="format-bar">
+                    <span><b>A</b></span>
+                    <span onclick="addEmoji('😊')">😊</span>
+                    <span onclick="sendWizz()" style="cursor:pointer; color: #d2280f; font-weight: bold;">💥 <i>Wizz</i></span>
+                    <span>🎨</span>
                 </div>
-                <div class="avatar-frame">
-                    <div class="avatar-img avatar-user">😎</div>
+                <div class="input-area">
+                    <textarea id="chat-input" placeholder="Écrivez votre message ici..."></textarea>
+                    <button class="btn-send" onclick="sendMessage()">Envoyer</button>
                 </div>
             </div>
-        </div>
-
-        <div class="status-footer" id="status-footer">
-            Prêt à discuter.
         </div>
     </div>
 
-    <!-- 3. LE SCRIPT SOCKET.IO + LOGIQUE -->
+    <!-- 3. SCRIPT -->
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
         let currentUser = "Moi";
+        let currentContact = "";
 
-        function openChat() {
+        function openChat(contact) {
+            currentContact = contact;
+            document.getElementById('chat-title').textContent = `💬 ${contact} - Conversation`;
             document.getElementById('chat-window').style.display = 'flex';
+            
             // Son de connexion
             const audio = new Audio('assets/msn_sound.mp3');
             audio.volume = 0.5;
-            audio.play().catch(e => console.log("Son de connexion non trouvé."));
+            audio.play().catch(e => console.log("Son non trouvé."));
         }
 
         function closeChat() {
             document.getElementById('chat-window').style.display = 'none';
+            document.getElementById('messages').innerHTML = ''; // Vider le chat
         }
 
         function sendMessage() {
             const input = document.getElementById('chat-input');
             const message = input.value.trim();
             if (message !== "") {
-                // On ajoute le message à l'écran
-                addMessageToScreen(currentUser, message);
-                // On l'envoie au serveur
+                addMessageToScreen(currentUser, message, 'mine');
                 socket.emit('chat message', { user: currentUser, text: message });
                 input.value = '';
             }
         }
 
-        // Permettre d'envoyer avec Entrée
         document.getElementById('chat-input').addEventListener('keypress', function (e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -261,54 +206,50 @@
             }
         });
 
-        // Recevoir un message
         socket.on('chat message', function(msg) {
-            // Si c'est mon propre message, on ne le réaffiche pas
             if (msg.user === currentUser) return;
+            addMessageToScreen(msg.user, msg.text, 'other');
             
-            addMessageToScreen(msg.user, msg.text);
-            
-            // Son de message
             const audio = new Audio('assets/message.mp3');
             audio.volume = 0.3;
             audio.play().catch(e => {});
         });
 
-        function addMessageToScreen(sender, text) {
+        function addMessageToScreen(sender, text, type) {
             const messagesDiv = document.getElementById('messages');
             
-            const senderDiv = document.createElement('div');
-            senderDiv.classList.add('msg-sender');
-            senderDiv.textContent = `${sender} dit :`;
+            const container = document.createElement('div');
+            container.classList.add('msg-container', type);
             
-            const textDiv = document.createElement('div');
-            textDiv.classList.add('msg-text');
-            textDiv.textContent = text;
-            
-            messagesDiv.appendChild(senderDiv);
-            messagesDiv.appendChild(textDiv);
-            
-            // Scroll automatique
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            
-            // Mise à jour du pied de page
             const now = new Date();
-            document.getElementById('status-footer').textContent = `Dernier message à ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}.`;
+            const time = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+            
+            container.innerHTML = `
+                <div class="msg-header">${sender} • ${time}</div>
+                <div class="msg-bubble">${text}</div>
+            `;
+            
+            messagesDiv.appendChild(container);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // --- ÉMOTICÔNES ---
+        function addEmoji(emoji) {
+            const input = document.getElementById('chat-input');
+            input.value += emoji;
+            input.focus();
         }
 
         // --- WIZZ ---
         function sendWizz() {
-            // 1. Jouer le son
             const audio = new Audio('assets/nudge.mp3'); 
             audio.volume = 1.0;
             audio.play().catch(e => console.log("nudge.mp3 non trouvé."));
 
-            // 2. Faire trembler la fenêtre
             const chatWin = document.getElementById('chat-window');
             chatWin.classList.add('shake-animation');
             setTimeout(() => chatWin.classList.remove('shake-animation'), 500);
 
-            // 3. Ajouter l'alerte visuelle dans le chat
             const messagesDiv = document.getElementById('messages');
             const alertDiv = document.createElement('div');
             alertDiv.classList.add('nudge-alert');
@@ -316,11 +257,9 @@
             messagesDiv.appendChild(alertDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
-            // 4. Envoyer l'événement au serveur
             socket.emit('wizz', { user: currentUser });
         }
 
-        // Recevoir un Wizz
         socket.on('wizz', function(data) {
             const chatWin = document.getElementById('chat-window');
             chatWin.classList.add('shake-animation');
@@ -337,6 +276,5 @@
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         });
     </script>
-
 </body>
 </html>
